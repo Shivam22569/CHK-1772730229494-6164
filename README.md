@@ -36,7 +36,7 @@ Features:
 Installation and Setup:
 
 1. Clone the Repository
-  git clone https://github.com/yourusername/Air-Quality-Prediction.git
+  git clone 
 2. Navigate to the Project Directory
   cd Air-Quality-Prediction
 3. Install Required Dependencies
