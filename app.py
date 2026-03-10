@@ -15,9 +15,7 @@ import json
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ============================================================================
-# DATABASE & AUTH HELPERS
-# ============================================================================
+
 def get_db_connection():
     conn = sqlite3.connect('database/database.db')
     conn.row_factory = sqlite3.Row
