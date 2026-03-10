@@ -48,7 +48,7 @@ app = Flask(__name__)
 app.secret_key = 'super_secret_airsense_key'
 
 # OpenWeather API configuration
-OPENWEATHER_API_KEY = "59749f6e704094cf19944a650881cdff"
+OPENWEATHER_API_KEY = ""
 OPENWEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5"
 
 # ============================================================================
