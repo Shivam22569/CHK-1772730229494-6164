@@ -21,7 +21,7 @@ def init_db():
         )
     ''')
     
-    # Create the air_quality_history table
+    # Create the air_quality_history table HISTORY
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS air_quality_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
