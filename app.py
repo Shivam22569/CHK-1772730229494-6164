@@ -32,10 +32,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ============================================================================
-# MODEL LOADING
-# ============================================================================
-# Load the pre-trained Random Forest model
+
 filename = 'random_forest_regression_model.pkl'
 
 if not os.path.isfile(filename):
