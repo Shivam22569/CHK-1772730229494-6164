@@ -13,8 +13,8 @@
 DHT dht(DHTPIN, DHTTYPE);
 
 // ================= WIFI CONFIG =================
-const char* ssid = "JACKOFALLTRADES";
-const char* password = "ghe bhikari";
+const char* ssid = "WIFI NAME";
+const char* password = "WIFI PASSWORD";
 
 // ================= FLASK SERVER =================
 const char* serverUrl = "http://10.180.55.213:5000/predict_sensor";
