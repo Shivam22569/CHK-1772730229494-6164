@@ -7,7 +7,7 @@ def avg_data_2013():
     temp_i=0
     #creating average varibale with empty list 
     average=[]
-    #Iterating 24 data Values from the 2013 data set that store in rows
+    #Iterating 24 data Values from the 2013 data set that store in rows 
     for rows in pd.read_csv('Data/AQI/aqi2013.csv',chunksize=24):
         #creating Varibales with Empty Value and empty list
         add_var=0
@@ -136,4 +136,5 @@ if __name__=="__main__":
     plt.xlabel('Day')
     plt.ylabel('PM 2.5')
     plt.legend(loc='upper right')
+
     plt.show()
