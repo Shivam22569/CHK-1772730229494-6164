@@ -212,7 +212,6 @@ def dashboard():
     
     return render_template('dashboard.html', user=user, history=history, latest=latest, history_json=json.dumps(history))
 
-
 # ============================================================================
 # FLASK ROUTES - EXISTING
 # ============================================================================
