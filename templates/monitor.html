@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Global AQI Monitor | AirSense AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-wind"></i>
+                <a href="/">AirSense AI</a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="/predict" class="nav-link">
+                    <i class="fas fa-brain"></i>
+                    AQI Prediction
+                </a>
+                <a href="/monitor" class="nav-link active">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Live Monitor
+                </a>
+                {% if session.get('user_id') %}
+                <a href="/dashboard" class="nav-link"><i class="fas fa-user"></i> Dashboard</a>
+                {% else %}
+                <a href="/login" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                {% endif %}
+            </div>
+            <div class="nav-status">
+                <span id="server-status" class="status-badge">
+                    <i class="fas fa-circle"></i>
+                    System Ready
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- City Selection -->
+        <section class="input-section">
+            <div class="city-selector">
+                <h2 style="margin-bottom: 24px;">
+                    <i class="fas fa-magnifying-glass-location"></i>
+                    Global Station Search
+                </h2>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 300px;">
+                        <input type="text" id="city-input" placeholder="Search city (e.g., London, Tokyo, Mumbai...)"
+                            list="cities" style="width: 100%;">
+                        <datalist id="cities">
+                            <option value="London">
+                            <option value="New York">
+                            <option value="Tokyo">
+                            <option value="Paris">
+                            <option value="Sydney">
+                            <option value="Mumbai">
+                            <option value="Beijing">
+                            <option value="Dubai">
+                            <option value="Singapore">
+                            <option value="Toronto">
+                        </datalist>
+                    </div>
+                    <button id="search-btn" class="btn btn-primary">
+                        <i class="fas fa-satellite-dish"></i>
+                        Connect Station
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Current AQI Display -->
+        <section id="current-aqi-section" style="display: none;">
+            <div class="aqi-display-card">
+                <div class="aqi-circle" id="aqi-circle" style="width: 250px; height: 250px;">
+                    <div class="aqi-value" id="aqi-value" style="font-size: 5rem;">--</div>
+                    <div class="aqi-unit">AQI</div>
+                </div>
+                <div class="aqi-info">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <h1 id="city-title" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em;">--
+                        </h1>
+                        <span id="aqi-timestamp"
+                            style="font-size: 0.8rem; color: var(--text-dim); font-family: monospace;"></span>
+                    </div>
+                    <div class="aqi-category" id="aqi-category"
+                        style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 8px;">--</div>
+                    <p class="aqi-message" id="aqi-message"></p>
+                    <div class="aqi-meta" style="margin-top: 16px; display: flex; gap: 12px;">
+                        <span id="country-info" class="status-badge"
+                            style="background: var(--bg-surface); color: var(--text-muted); border-color: var(--border);"></span>
+                        <span id="coordinates" class="status-badge"
+                            style="background: var(--bg-surface); color: var(--text-muted); border-color: var(--border); font-family: monospace;"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Grid -->
+        <section id="weather-section" style="display: none;">
+            <h2 style="margin-bottom: 24px;"><i class="fas fa-cloud-sun"></i> Station Telemetry</h2>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon good">
+                        <i class="fas fa-temperature-low"></i>
+                    </div>
+                    <h3 id="temp">--°C</h3>
+                    <p>Temperature</p>
+                    <small id="temp-range" style="color: var(--text-dim); font-size: 0.75rem;"></small>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon moderate" style="color: var(--primary);">
+                        <i class="fas fa-droplet"></i>
+                    </div>
+                    <h3 id="humidity">--%</h3>
+                    <p>Humidity</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon unhealthy">
+                        <i class="fas fa-wind"></i>
+                    </div>
+                    <h3 id="wind-speed">-- m/s</h3>
+                    <p>Wind Speed</p>
+                    <small id="wind-range" style="color: var(--text-dim); font-size: 0.75rem;"></small>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon hazardous">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 id="visibility">-- km</h3>
+                    <p>Visibility</p>
+                </div>
+
+                <div class="info-card" style="grid-column: span 2;">
+                    <div class="info-icon" style="color: var(--accent);">
+                        <i class="fas fa-compass"></i>
+                    </div>
+                    <h3 id="weather-desc">--</h3>
+                    <p id="pressure">-- hPa Pressure</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics -->
+        <section id="charts-section" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Station Analytics</h2>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0;">Historical Trend (7D)</h3>
+                        <button id="refresh-trend" class="btn-link" style="font-size: 0.8rem;"><i
+                                class="fas fa-sync"></i> Sync</button>
+                    </div>
+                    <canvas id="aqi-trend-chart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Atmospheric Components</h3>
+                    <canvas id="pollution-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- AQI Trend (Past, Present & Forecast) -->
+        <section id="aqi-trend-section" style="display: none;">
+            <h2><i class="fas fa-chart-area"></i> AQI Trend</h2>
+            <div class="chart-card">
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;">
+                    Past 30 days, today, and 7‑day AI forecast for the selected city.
+                </p>
+                <div style="height: 320px;">
+                    <canvas id="aqi-full-trend-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Health Section -->
+        <section id="health-section" style="display: none;">
+            <h2><i class="fas fa-heart-pulse"></i> Personalized Health Engine</h2>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon good"><i class="fas fa-lungs"></i></div>
+                    <h3>Respiratory Advisory</h3>
+                    <p id="respiratory-advice">Connecting to station...</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon moderate" style="color: var(--primary);"><i class="fas fa-person-running"></i>
+                    </div>
+                    <h3>Outdoor Utility</h3>
+                    <p id="activity-advice">Awaiting telemetry...</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon unhealthy"><i class="fas fa-users-viewfinder"></i></div>
+                    <h3>Vulnerable Precautions</h3>
+                    <p id="vulnerable-advice">Analyzing data...</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2024 AirSense AI | Global Environmental Surveillance</p>
+        </footer>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p style="font-weight: 600; letter-spacing: 0.05em; color: var(--text-main);">FETCHING STATION TELEMETRY...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="error-message" class="loading-overlay" style="display: none; background: rgba(20, 0, 0, 0.9);">
+        <div class="aqi-display-card" style="max-width: 500px; text-align: center; border-color: var(--danger);">
+            <div class="aqi-info">
+                <i class="fas fa-triangle-exclamation"
+                    style="font-size: 3rem; color: var(--danger); margin-bottom: 16px;"></i>
+                <h2>Telemetry Lost</h2>
+                <p id="error-text" style="margin-bottom: 24px;">Unable to establish link with city station.</p>
+                <button id="retry-btn" class="btn btn-primary"
+                    style="background: var(--danger); box-shadow: 0 4px 15px rgba(255,0,0,0.3);">Re-establish
+                    Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='monitor.js') }}"></script>
+</body>
+
+</html>

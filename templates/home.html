@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Monitoring System | AI-Powered Insights</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-wind"></i>
+                <a href="/">AirSense AI</a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="/predict" class="nav-link"><i class="fas fa-brain"></i> AQI Prediction</a>
+                <a href="/monitor" class="nav-link"><i class="fas fa-map-marker-alt"></i> Live Monitor</a>
+                {% if session.get('user_id') %}
+                <a href="/dashboard" class="nav-link"><i class="fas fa-user"></i> Dashboard</a>
+                {% else %}
+                <a href="/login" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                {% endif %}
+            </div>
+            <div class="nav-status">
+                <span id="server-status" class="status-badge">
+                    <i class="fas fa-circle"></i>
+                    System Active
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="container">
+        <section class="hero-section">
+            <div class="aqi-display-card">
+                <div class="aqi-info" style="min-width: 400px; text-align: left;">
+                    <h1
+                        style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800; letter-spacing: -0.04em;">
+                        Breath Smarter <br> with <span
+                            style="background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Predictive
+                            AI</span>
+                    </h1>
+                    <p class="aqi-message" style="font-size: 1.25rem; margin-bottom: 32px; max-width: 500px;">
+                        Harnessing advanced machine learning to provide real-time air quality forecasts and global
+                        monitoring for a healthier you.
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <a href="/predict" class="btn btn-primary">
+                            <i class="fas fa-brain"></i>
+                            Start Prediction
+                        </a>
+                        <a href="/predict_sensor" class="btn btn-primary"
+                            style="background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);">
+                            <i class="fas fa-microchip"></i>
+                            Prediction Sensor
+                        </a>
+                        <a href="/monitor" class="btn btn-secondary">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Explore Live Map
+                        </a>
+                    </div>
+                </div>
+                <div class="aqi-circle"
+                    style="width: 300px; height: 300px; border-width: 12px; border-color: hsla(var(--primary-h), 100%, 50%, 0.1);">
+                    <div class="aqi-value" style="font-size: 6rem;">AI</div>
+                    <div class="aqi-unit">Precision</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section style="margin-top: 60px;">
+            <div class="row" style="display: flex; gap: 40px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h2 style="margin-bottom: 20px;"><i class="fas fa-info-circle"></i> About Our Project</h2>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 15px; line-height: 1.4;">
+                        Empowering Communities with Real-Time <span style="background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Environmental Intelligence</span>
+                    </h3>
+                    <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px;">
+                        AirSense AI is a state-of-the-art environmental monitoring platform designed to bridge the gap between complex meteorological data and actionable public health insights. Our mission is to democratize air quality information, enabling individuals, researchers, and policymakers to make informed decisions for a healthier future.
+                    </p>
+                    <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7;">
+                        By integrating data from localized IoT sensor networks with global telemetry from OpenWeather, we provide a comprehensive view of air quality parameters. Our sophisticated Machine Learning algorithms analyze this continuous stream of data to deliver highly accurate predictive forecasts, identifying potential hazards before they impact your daily life.
+                    </p>
+                </div>
+                <div style="flex: 1; min-width: 300px;">
+                    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px; display: flex; flex-direction: column; gap: 20px; box-shadow: var(--glass-shadow);">
+                        <div style="display: flex; gap: 20px; align-items: flex-start;">
+                            <div style="background: rgba(30, 136, 229, 0.1); color: var(--primary); padding: 15px; border-radius: 12px; font-size: 1.5rem;"><i class="fas fa-satellite-dish"></i></div>
+                            <div>
+                                <h4 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 5px;">Data Aggregation</h4>
+                                <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.5;">Continuous ingestion of telemetry from decentralized IoT hardware and global meteorological satellites.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 20px; align-items: flex-start;">
+                            <div style="background: rgba(77, 182, 172, 0.1); color: #4db6ac; padding: 15px; border-radius: 12px; font-size: 1.5rem;"><i class="fas fa-brain"></i></div>
+                            <div>
+                                <h4 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 5px;">AI Processing</h4>
+                                <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.5;">Real-time analysis using Random Forest regression layers to filter noise and predict AQI variations with 98% accuracy.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 20px; align-items: flex-start;">
+                            <div style="background: rgba(186, 104, 200, 0.1); color: #ba68c8; padding: 15px; border-radius: 12px; font-size: 1.5rem;"><i class="fas fa-user-shield"></i></div>
+                            <div>
+                                <h4 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 5px;">Actionable Output</h4>
+                                <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.5;">Translation of raw data into personalized health advisories and interactive dashboards accessible anywhere.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section>
+            <h2 style="justify-content: center; margin-bottom: 40px;"><i class="fas fa-sparkles"></i> Advanced
+                Capabilities</h2>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon good">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>ML Forecasting</h3>
+                    <p>Proprietary Random Forest models trained on millions of environmental data points for 98%
+                        accuracy.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon moderate"
+                        style="background: rgba(var(--primary-h), 100%, 50%, 0.1); color: var(--primary);">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <h3>Global Sync</h3>
+                    <p>Live integration with OpenWeather clusters providing real-time data for 200,000+ cities
+                        worldwide.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon unhealthy">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3>Deep Analytics</h3>
+                    <p>Multi-dimensional analysis of PM2.5, SO2, CO, and more with interactive trend visualizations.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon hazardous">
+                        <i class="fas fa-heart-pulse"></i>
+                    </div>
+                    <h3>Health Engine</h3>
+                    <p>Intelligent recommendation engine providing tailored advice based on your local environmental
+                        profile.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 AirSense AI Monitor | Precision Environmental Intelligence</p>
+            <p style="opacity: 0.6;">
+                <i class="fas fa-shield-halved"></i>
+                Data processed with end-to-end encryption for your privacy.
+            </p>
+        </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

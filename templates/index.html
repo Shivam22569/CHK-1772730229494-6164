@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI Prediction Dashboard | AirSense AI</title>
+
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-wind"></i>
+                <a href="/">AirSense AI</a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="/predict" class="nav-link active">
+                    <i class="fas fa-brain"></i>
+                    AQI Prediction
+                </a>
+                <a href="/monitor" class="nav-link">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Live Monitor
+                </a>
+            </div>
+            <div class="nav-status">
+                <span id="server-status" class="status-badge">
+                    <i class="fas fa-circle"></i>
+                    System Ready
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Hero: AQI Prediction Result -->
+        <section>
+            <div class="aqi-display-card" id="aqiCard">
+                <div class="aqi-circle" id="aqiCircle">
+                    <div class="aqi-value" id="aqiValue">--</div>
+                    <div class="aqi-unit">AQI</div>
+                </div>
+                <div class="aqi-info">
+                    <h2 id="aqiCategory">Ready to Predict</h2>
+                    <p id="aqiMessage" class="aqi-message">Input environmental data below to generate an AI air quality
+                        forecast.</p>
+                    <p id="aqiEmoji" class="aqi-emoji">🔍</p>
+                </div>
+            </div>
+
+            <!-- Health Indicator -->
+            <div class="health-indicator">
+                <div class="health-bars-container">
+                    <div class="health-bar-item">
+                        <span class="health-label">Good</span>
+                        <div class="health-bar-bg">
+                            <div class="health-bar-fill good" style="width: 0%"></div>
+                        </div>
+                        <span class="health-range">0-50</span>
+                    </div>
+                    <div class="health-bar-item">
+                        <span class="health-label">Moderate</span>
+                        <div class="health-bar-bg">
+                            <div class="health-bar-fill moderate" style="width: 0%"></div>
+                        </div>
+                        <span class="health-range">51-100</span>
+                    </div>
+                    <div class="health-bar-item">
+                        <span class="health-label">Unhealthy (S)</span>
+                        <div class="health-bar-bg">
+                            <div class="health-bar-fill unhealthy" style="width: 0%"></div>
+                        </div>
+                        <span class="health-range">101-150</span>
+                    </div>
+                    <div class="health-bar-item">
+                        <span class="health-label">Unhealthy</span>
+                        <div class="health-bar-bg">
+                            <div class="health-bar-fill very-unhealthy" style="width: 0%"></div>
+                        </div>
+                        <span class="health-range">151-200</span>
+                    </div>
+                    <div class="health-bar-item">
+                        <span class="health-label">Hazardous</span>
+                        <div class="health-bar-bg">
+                            <div class="health-bar-fill hazardous" style="width: 0%"></div>
+                        </div>
+                        <span class="health-range">301+</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Input Form -->
+        <section class="input-section">
+            <h2><i class="fas fa-sliders"></i> Environment Parameters</h2>
+
+            <form id="predictionForm" class="input-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tempInput"><i class="fas fa-temperature-half"></i> Avg Temperature (°C)</label>
+                        <input type="number" id="tempInput" name="T" step="0.1" placeholder="25.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxTempInput"><i class="fas fa-arrow-up"></i> Max Temperature (°C)</label>
+                        <input type="number" id="maxTempInput" name="TM" step="0.1" placeholder="32.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minTempInput"><i class="fas fa-arrow-down"></i> Min Temperature (°C)</label>
+                        <input type="number" id="minTempInput" name="Tm" step="0.1" placeholder="18.5" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pressureInput"><i class="fas fa-compress-arrows-alt"></i> Sea Level Pressure
+                            (hPa)</label>
+                        <input type="number" id="pressureInput" name="SLP" step="0.1" placeholder="1013.2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="humidityInput"><i class="fas fa-droplet"></i> Humidity (%)</label>
+                        <input type="number" id="humidityInput" name="H" step="0.1" min="0" max="100" placeholder="65"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visibilityInput"><i class="fas fa-eye"></i> Visibility (km)</label>
+                        <input type="number" id="visibilityInput" name="VV" step="0.1" placeholder="10.0" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="windInput"><i class="fas fa-wind"></i> Wind Speed (m/s)</label>
+                        <input type="number" id="windInput" name="V" step="0.1" placeholder="3.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxWindInput"><i class="fas fa-wind-warning"></i> Max Wind (m/s)</label>
+                        <input type="number" id="maxWindInput" name="VM" step="0.1" placeholder="8.2" required>
+                    </div>
+                    <div class="form-group" style="visibility: hidden;"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="predictBtn" class="btn btn-primary">
+                        <i class="fas fa-bolt"></i> Generate Forecast
+                    </button>
+                    <button type="button" id="clearBtn" class="btn btn-secondary">
+                        <i class="fas fa-rotate-left"></i> Reset
+                    </button>
+                </div>
+                <div id="formMessage" class="form-message" style="display: none;"></div>
+            </form>
+
+            <div class="sample-data-section">
+                <button id="sampleDataBtn" class="btn-link">
+                    <i class="fas fa-vial-circle-check"></i> Load Demo Dataset
+                </button>
+            </div>
+        </section>
+
+        <!-- Visualizations -->
+        <section>
+            <h2><i class="fas fa-chart-area"></i> Analytics Dashboard</h2>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>AQI Temporal Trends</h3>
+                    <canvas id="aqiTrendChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Environmental Correlation</h3>
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Pollutant Concentration</h3>
+                    <canvas id="pollutionChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Category probability</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 AirSense AI | Powered by Random Forest Regressor</p>
+        </footer>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p style="font-weight: 600; letter-spacing: 0.05em;">AI ENGINE CALCULATING...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
